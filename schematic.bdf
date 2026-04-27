@@ -5172,7 +5172,7 @@ agreement for further details.
 	)
 	(parameter
 		"vsync_level"
-		"'0'"
+		"'1'"
 		""
 		(type "PARAMETER_ENUM")	)
 	(parameter

@@ -166,7 +166,7 @@ begin
 				if (sample_now = '1') then
 					if (sample_col > s_col_begin and sample_col < s_col_end and vcount > s_row_begin and vcount < s_row_end) then
 						mono_video := video xor invert_video;
-						mono_intensity := mono_video and intensity;
+						mono_intensity := '0';
 						wren <= '1'; -- enable row RAM write
 						col_number <= col_number + 1;
 						pixel <= mono_video & mono_intensity & mono_video & mono_intensity & mono_video & mono_intensity;
