@@ -89,10 +89,10 @@ set_location_assignment PIN_144 -to G0
 set_location_assignment PIN_137 -to G1
 set_location_assignment PIN_141 -to G2
 set_location_assignment PIN_128 -to HSYNC
-set_location_assignment PIN_3 -to LED0
-set_location_assignment PIN_7 -to LED1
-set_location_assignment PIN_10 -to LED2
-set_location_assignment PIN_11 -to LED3
+set_location_assignment PIN_7 -to LED0
+set_location_assignment PIN_3 -to LED1
+set_location_assignment PIN_11 -to LED2
+set_location_assignment PIN_10 -to LED3
 set_location_assignment PIN_2 -to R0
 set_location_assignment PIN_143 -to R1
 set_location_assignment PIN_1 -to R2
