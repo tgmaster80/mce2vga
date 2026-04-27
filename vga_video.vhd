@@ -92,7 +92,7 @@ entity vga_video is
 		constant vsync_level 			: std_logic := '0';
 		constant mono						: std_logic := '0';
 		
-		constant scale_mode				: integer   := 0  -- 0 : no scale, 1 : CGA doubling rows, 2 : MDA 350->400
+		constant scale_mode				: integer   := 0  -- 0 : no scale, 1 : double rows, 3 : double rows and columns
 	);
 	
     port(
@@ -293,8 +293,14 @@ begin
 					col_number <= to_unsigned(8, col_number'length);
 					
 				elsif (hcount < hor_active_video) then
-									
-					col_number <= col_number + 1;
+					case scale_mode is
+						when 3 =>
+							if (hcount(0) = '1') then
+								col_number <= col_number + 1;
+							end if;
+						when others =>
+							col_number <= col_number + 1;
+					end case;
 					
 				end if;
 			end if;
@@ -320,7 +326,7 @@ begin
 					
 						case scale_mode is
 						
-							when 1 =>
+							when 1 | 3 =>
 								if (vcount(0) = '1') then
 									row_number <= row_number + 1;
 									row_mask <= not scanline;

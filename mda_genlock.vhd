@@ -40,16 +40,25 @@ end mda_genlock;
 
 architecture behavioral of mda_genlock is
 
+constant c_capture_total_cols	: integer := 410;
+constant c_capture_active_cols	: integer := 320;
+constant c_capture_active_rows	: integer := 240;
+constant c_default_line_ticks	: integer := 1854;
+
 signal hcount			 : unsigned (13 downto 0); 
 signal vcount			 : unsigned (13 downto 0); 
 signal vi	 			 : unsigned (1 downto 0);
 signal store_trg		 : std_logic := '0';
-signal sample_adj: integer range 0 to 7 := 1;
 
 signal s_col_begin	: integer range 0 to 2048 := 0;
-signal s_col_end		: integer range 0 to 2048 := 760;
+signal s_col_end		: integer range 0 to 2048 := c_capture_active_cols;
 signal s_row_begin	: integer range 0 to 2048 := 0;
-signal s_row_end		: integer range 0 to 2048 := 382;
+signal s_row_end		: integer range 0 to 2048 := c_capture_active_rows;
+signal line_ticks		: integer range 1 to 4095 := c_default_line_ticks;
+signal sample_accum	: integer range 0 to 8191 := 0;
+signal sample_col		: integer range 0 to 2048 := 0;
+signal video_sum		: integer range 0 to c_capture_active_cols := 0;
+signal invert_video	: std_logic := '0';
 
 begin
 
@@ -58,10 +67,9 @@ begin
 		if (rising_edge(clk)) then	
 			if (enable = '1') then
 				s_col_begin <= to_integer(left_border);
-				s_col_end <= to_integer(left_border) + 760;
+				s_col_end <= to_integer(left_border) + c_capture_active_cols;
 				s_row_begin <= to_integer(top_border);
-				s_row_end <= to_integer(top_border) + 382;
-				sample_adj <= to_integer(samples);
+				s_row_end <= to_integer(top_border) + c_capture_active_rows;
 			end if;
 		end if;
 	end process;	
@@ -82,6 +90,17 @@ begin
 				end if;				
 			end if;
 		end if;		
+	end process;
+
+	process(clk, hblank, enable)
+	begin
+		if (rising_edge(clk)) then
+			if (enable = '1') then
+				if (hblank = '1' and hcount > 0) then
+					line_ticks <= to_integer(hcount);
+				end if;
+			end if;
+		end if;
 	end process;
 
 	-- line counter
@@ -111,15 +130,53 @@ begin
 		end if;
 	end process;
 
-	-- col / row adjustment
-	process(clk, hcount, s_col_begin, s_col_end, s_row_begin, s_row_end, enable)
+	-- resample the source line to a fixed 320 pixel raster using the measured line length
+	process(clk, enable, hblank, video, intensity, s_col_begin, s_col_end, s_row_begin, s_row_end)
+	variable next_accum	: integer range 0 to 8191;
+	variable sample_now	: std_logic;
+	variable mono_video	: std_logic;
+	variable mono_intensity	: std_logic;
 	begin	
 		if (rising_edge(clk)) then		
 			if (enable = '1') then
-				wren <= '0';		
-				if ((hcount(2 downto 0) = "000") and (hcount(hcount'length-1 downto 3) > s_col_begin and hcount(hcount'length-1 downto 3) < s_col_end) and (vcount > s_row_begin and vcount < s_row_end) ) then
-					wren <= '1'; -- enable row RAM write
-				end if;		
+				wren <= '0';
+				sample_now := '0';
+
+				if (hblank = '1') then
+					if (video_sum > (c_capture_active_cols / 2)) then
+						invert_video <= '1';
+					else
+						invert_video <= '0';
+					end if;
+					video_sum <= 0;
+					sample_accum <= 0;
+					sample_col <= 0;
+					col_number <= (others => '0');
+				elsif (sample_col < c_capture_total_cols) then
+					next_accum := sample_accum + c_capture_total_cols;
+					if (next_accum >= line_ticks) then
+						sample_accum <= next_accum - line_ticks;
+						sample_col <= sample_col + 1;
+						sample_now := '1';
+					else
+						sample_accum <= next_accum;
+					end if;
+				end if;
+
+				if (sample_now = '1') then
+					if (sample_col > s_col_begin and sample_col < s_col_end and vcount > s_row_begin and vcount < s_row_end) then
+						mono_video := video xor invert_video;
+						mono_intensity := mono_video and intensity;
+						wren <= '1'; -- enable row RAM write
+						col_number <= col_number + 1;
+						pixel <= mono_video & mono_intensity & mono_video & mono_intensity & mono_video & mono_intensity;
+						if (video = '1') then
+							if (video_sum < c_capture_active_cols) then
+								video_sum <= video_sum + 1;
+							end if;
+						end if;
+					end if;
+				end if;
 			end if;
 		end if;
 	end process;
@@ -145,39 +202,5 @@ begin
 			end if;
 		end if;
 	end process;
-	
-	process(clk, hcount, hblank, s_col_begin, s_col_end, enable)
-	begin		
-		if (rising_edge(clk)) then		
-			if (enable = '1') then
-				if (hcount(2 downto 0) = "111" and hcount(hcount'length-1 downto 3) > s_col_begin and hcount(hcount'length-1 downto 3) < s_col_end) then
-					col_number <= col_number + 1;
-				end if;
-					
-				if (hblank = '1') then
-					col_number <= (others => '0');
-				end if;				
-			end if;
-		end if;
-	end process;	
-	
-	process(clk, hcount, video, intensity, enable) --, r, g, b)
-	variable rgbi : unsigned(3 downto 0);		
-	begin	
-		if (rising_edge(clk)) then
-		if (enable = '1') then		
-			if (hcount(2 downto 0) = "111") then					
-	--				rgbi := r & g & b & intensity;
-	--				case(rgbi) is
-	--					when "1100" => pixel <= "100100"; -- BROWN
-	--					when "0000" => pixel <= video & intensity & video & intensity & video & intensity;
-	--					when "0001" => pixel <= video & intensity & video & intensity & video & intensity;
-	--					when others =>  pixel <= r & intensity & g & intensity & b & intensity;
-	--				end case;									
-					pixel <= video & intensity & video & intensity & video & intensity;					
-				end if;
-			end if;
-		end if;
-	end process;	
 
 end behavioral;

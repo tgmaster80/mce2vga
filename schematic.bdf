@@ -3343,12 +3343,12 @@ agreement for further details.
 		(type "PARAMETER_SIGNED_DEC")	)
 	(parameter
 		"c_top_border"
-		"9"
+		"8"
 		""
 		(type "PARAMETER_SIGNED_DEC")	)
 	(parameter
 		"c_left_border"
-		"110"
+		"56"
 		""
 		(type "PARAMETER_SIGNED_DEC")	)
 	(drawing
@@ -4302,32 +4302,32 @@ agreement for further details.
 	)
 	(parameter
 		"hor_active_video"
-		"730"
+		"640"
 		""
 		(type "PARAMETER_SIGNED_DEC")	)
 	(parameter
 		"hor_front_porch"
-		"15"
+		"16"
 		""
 		(type "PARAMETER_SIGNED_DEC")	)
 	(parameter
 		"hor_sync_pulse"
-		"104"
+		"96"
 		""
 		(type "PARAMETER_SIGNED_DEC")	)
 	(parameter
 		"hor_back_porch"
-		"47"
+		"48"
 		""
 		(type "PARAMETER_SIGNED_DEC")	)
 	(parameter
 		"vert_active_video"
-		"354"
+		"480"
 		""
 		(type "PARAMETER_SIGNED_DEC")	)
 	(parameter
 		"vert_front_porch"
-		"36"
+		"10"
 		""
 		(type "PARAMETER_SIGNED_DEC")	)
 	(parameter
@@ -4337,7 +4337,7 @@ agreement for further details.
 		(type "PARAMETER_SIGNED_DEC")	)
 	(parameter
 		"vert_back_porch"
-		"57"
+		"33"
 		""
 		(type "PARAMETER_SIGNED_DEC")	)
 	(parameter
@@ -4357,7 +4357,7 @@ agreement for further details.
 		(type "PARAMETER_ENUM")	)
 	(parameter
 		"scale_mode"
-		"0"
+		"3"
 		""
 		(type "PARAMETER_SIGNED_DEC")	)
 	(drawing
@@ -5376,12 +5376,12 @@ agreement for further details.
 		(type "PARAMETER_ENUM")	)
 	(parameter
 		"hsync_ticks"
-		"216"
+		"96"
 		""
 		(type "PARAMETER_SIGNED_DEC")	)
 	(parameter
 		"vsync_ticks"
-		"6400"
+		"3000"
 		""
 		(type "PARAMETER_SIGNED_DEC")	)
 	(parameter
@@ -7339,7 +7339,7 @@ agreement for further details.
 	(pt 2576 1344)
 )
 (connector
-	(text "VGA_28MHZ_CLK" (rect 2458 1248 2548 1260)(font "Arial" ))
+	(text "VGA_25MHZ_CLK" (rect 2458 1248 2548 1260)(font "Arial" ))
 	(pt 2448 1264)
 	(pt 2576 1264)
 )
