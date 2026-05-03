@@ -254,7 +254,11 @@ begin
 				-- disable
 				vsync_out <= 'Z';			
 			elsif(rising_edge(clk)) then
-				vsync_out <= '1';
+				vsync_out <= not vsync_level;
+				
+				if (vcount <= (vert_active_video + vert_front_porch + vert_sync_pulse - 1) and vcount >= (vert_active_video + vert_front_porch - 1)) then
+					vsync_out <= vsync_level;
+				end if;
 
 			end if;
 		
@@ -269,7 +273,12 @@ begin
 				hsync_out <= 'Z';
 				
 			elsif (rising_edge(clk)) then     
-				hsync_out <= '1';
+
+				hsync_out <= not hsync_level;
+				
+				if (hcount <= (hor_active_video + hor_front_porch + hor_sync_pulse - 1) and hcount >= (hor_active_video + hor_front_porch - 1)) then
+					hsync_out <= hsync_level;
+				end if;
 				
 			end if;		
 		
@@ -455,9 +464,9 @@ begin
 					end if;
 				end if;
 							
-				r_out <= "1111" and (blank&blank&blank&blank);
-				g_out <= "0000";
-				b_out <= "0000";
+				r_out <= red_pixel and (blank&blank&blank&blank);
+				g_out <= green_pixel and (blank&blank&blank&blank);
+				b_out <= blue_pixel and (blank&blank&blank&blank);
 				
 			end if;
 		
