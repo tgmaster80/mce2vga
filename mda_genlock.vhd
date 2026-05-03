@@ -57,8 +57,6 @@ signal s_row_end		: integer range 0 to 2048 := c_capture_active_rows;
 signal line_ticks		: integer range 1 to 4095 := c_default_line_ticks;
 signal sample_accum	: integer range 0 to 8191 := 0;
 signal sample_col		: integer range 0 to 2048 := 0;
-signal video_sum		: integer range 0 to c_capture_active_cols := 0;
-signal invert_video	: std_logic := '0';
 
 begin
 
@@ -143,12 +141,6 @@ begin
 				sample_now := '0';
 
 				if (hblank = '1') then
-					if (video_sum > (c_capture_active_cols / 2)) then
-						invert_video <= '1';
-					else
-						invert_video <= '0';
-					end if;
-					video_sum <= 0;
 					sample_accum <= 0;
 					sample_col <= 0;
 					col_number <= (others => '0');
@@ -165,16 +157,11 @@ begin
 
 				if (sample_now = '1') then
 					if (sample_col > s_col_begin and sample_col < s_col_end and vcount > s_row_begin and vcount < s_row_end) then
-						mono_video := video xor invert_video;
+						mono_video := not video;
 						mono_intensity := '0';
 						wren <= '1'; -- enable row RAM write
 						col_number <= col_number + 1;
 						pixel <= mono_video & mono_intensity & mono_video & mono_intensity & mono_video & mono_intensity;
-						if (video = '1') then
-							if (video_sum < c_capture_active_cols) then
-								video_sum <= video_sum + 1;
-							end if;
-						end if;
 					end if;
 				end if;
 			end if;
