@@ -5366,7 +5366,7 @@ agreement for further details.
 	)
 	(parameter
 		"vsync_level"
-		"'0'"
+		"'1'"
 		""
 		(type "PARAMETER_ENUM")	)
 	(parameter
@@ -5376,12 +5376,12 @@ agreement for further details.
 		(type "PARAMETER_ENUM")	)
 	(parameter
 		"hsync_ticks"
-		"216"
+		"96"
 		""
 		(type "PARAMETER_SIGNED_DEC")	)
 	(parameter
 		"vsync_ticks"
-		"6400"
+		"3000"
 		""
 		(type "PARAMETER_SIGNED_DEC")	)
 	(parameter
