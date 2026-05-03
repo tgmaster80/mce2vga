@@ -464,9 +464,9 @@ begin
 					end if;
 				end if;
 							
-				r_out <= red_pixel and (blank&blank&blank&blank);
-				g_out <= green_pixel and (blank&blank&blank&blank);
-				b_out <= blue_pixel and (blank&blank&blank&blank);
+				r_out <= "1111" and (blank&blank&blank&blank);
+				g_out <= "0000";
+				b_out <= "0000";
 				
 			end if;
 		
