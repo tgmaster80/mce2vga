@@ -174,7 +174,11 @@ begin
 	--					when "0001" => pixel <= video & intensity & video & intensity & video & intensity;
 	--					when others =>  pixel <= r & intensity & g & intensity & b & intensity;
 	--				end case;									
-					pixel <= video & intensity & video & intensity & video & intensity;					
+					if (video = '0') then
+						pixel <= "111111";
+					else
+						pixel <= "000000";
+					end if;
 				end if;
 			end if;
 		end if;
