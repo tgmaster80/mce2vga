@@ -40,7 +40,7 @@ end mda_genlock;
 
 architecture behavioral of mda_genlock is
 
-constant c_capture_total_cols : integer := 410;
+constant c_capture_active_cols : integer := 320;
 constant c_capture_active_rows : integer := 240;
 
 signal hcount			 : unsigned (13 downto 0); 
@@ -50,7 +50,7 @@ signal store_trg		 : std_logic := '0';
 signal sample_adj: integer range 0 to 7 := 1;
 
 signal s_col_begin	: integer range 0 to 2048 := 0;
-signal s_col_end		: integer range 0 to 2048 := c_capture_total_cols;
+signal s_col_end		: integer range 0 to 2048 := c_capture_active_cols;
 signal s_row_begin	: integer range 0 to 2048 := 0;
 signal s_row_end		: integer range 0 to 2048 := c_capture_active_rows;
 
@@ -61,7 +61,7 @@ begin
 		if (rising_edge(clk)) then	
 			if (enable = '1') then
 				s_col_begin <= to_integer(left_border);
-				s_col_end <= to_integer(left_border) + c_capture_total_cols;
+				s_col_end <= to_integer(left_border) + c_capture_active_cols;
 				s_row_begin <= to_integer(top_border);
 				s_row_end <= to_integer(top_border) + c_capture_active_rows;
 				sample_adj <= to_integer(samples);
@@ -75,7 +75,7 @@ begin
 		if (rising_edge(clk)) then
 			if (enable = '1') then
 				if (hblank = '1') then
-					max_col <= to_unsigned(c_capture_total_cols - 1, max_col'length);
+					max_col <= to_unsigned(c_capture_active_cols - 1, max_col'length);
 					hcount <= (others => '0');
 				else
 					hcount <= hcount + 1;					
@@ -161,7 +161,7 @@ begin
 		end if;
 	end process;	
 	
-	process(clk, hcount, video, intensity, row_number, col_number, enable) --, r, g, b)
+	process(clk, hcount, video, intensity, enable) --, r, g, b)
 	variable rgbi : unsigned(3 downto 0);		
 	begin	
 		if (rising_edge(clk)) then
@@ -174,7 +174,7 @@ begin
 	--					when "0001" => pixel <= video & intensity & video & intensity & video & intensity;
 	--					when others =>  pixel <= r & intensity & g & intensity & b & intensity;
 	--				end case;									
-					if (row_number(5) xor col_number(5)) = '1' then
+					if (video = '0') then
 						pixel <= "111111";
 					else
 						pixel <= "000000";
