@@ -392,18 +392,6 @@ begin
 				rgbi(1) := pixel_in(1);
 				rgbi(2) := pixel_in(3);
 				rgbi(3) := pixel_in(5);			
-
-				if (mono = '1') then
-					if (hcount(6) xor vcount(6)) = '1' then
-						red_pixel := "0000";
-						green_pixel := "1111";
-						blue_pixel := "0000";
-					else
-						red_pixel := "0000";
-						green_pixel := "0000";
-						blue_pixel := "0000";
-					end if;
-				else
 				
 				if (green_monitor = '1') then
 					if(adjust_mode = '1') then
@@ -437,7 +425,6 @@ begin
 					p_green_pixel := t_green_pixel;
 					p_blue_pixel := t_blue_pixel;
 				
-				end if;
 				end if;
 				
 				if (row_mask = '0') then
@@ -476,15 +463,9 @@ begin
 					end if;
 				end if;
 							
-				if (mono = '1') then
-					r_out <= red_pixel;
-					g_out <= green_pixel;
-					b_out <= blue_pixel;
-				else
-					r_out <= red_pixel and (blank&blank&blank&blank);
-					g_out <= green_pixel and (blank&blank&blank&blank);
-					b_out <= blue_pixel and (blank&blank&blank&blank);
-				end if;
+				r_out <= red_pixel and (blank&blank&blank&blank);
+				g_out <= green_pixel and (blank&blank&blank&blank);
+				b_out <= blue_pixel and (blank&blank&blank&blank);
 				
 			end if;
 		
