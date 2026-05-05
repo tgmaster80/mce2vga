@@ -79,11 +79,6 @@ signal s_phase				: unsigned(1 downto 0);
 
 begin
 
-	wren <= '0' when c_debug_disable_cga = '1' else 'Z';
-	wr_req <= '0' when c_debug_disable_cga = '1' else 'Z';
-	pixel <= (others => '0') when c_debug_disable_cga = '1' else (others => 'Z');
-	composite <= '0' when c_debug_disable_cga = '1' else s_composite;
-
 	process(clk, enable, samples, left_border, top_border)
 	begin
 		if (rising_edge(clk)) then	
@@ -176,7 +171,9 @@ begin
 	-- sram sync
 	process(sram_clk, hcount, hblank, wr_ack)
 	begin
-		if (wr_ack = '1') then
+		if (c_debug_disable_cga = '1') then
+			wr_req <= '0';
+		elsif (wr_ack = '1') then
 			wr_req <= '0';
 		elsif (rising_edge(sram_clk)) then
 			if (store_trg = '1') then
@@ -189,7 +186,9 @@ begin
 	process(clk, hcount, s_col_begin, s_col_end, s_row_begin, s_row_end, enable)
 	begin	
 		if (rising_edge(clk)) then		
-			if (enable = '1' and c_debug_disable_cga = '0') then
+			if (c_debug_disable_cga = '1') then
+				wren <= '0';
+			elsif (enable = '1') then
 				wren <= '0';		
 				if ((hcount(2 downto 0) = "111") and (hcount(hcount'length-1 downto 3) > s_col_begin and hcount(hcount'length-1 downto 3) < s_col_end) and (vcount > s_row_begin and vcount < s_row_end) ) then
 					wren <= '1'; -- enable row RAM write
