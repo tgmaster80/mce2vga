@@ -3343,12 +3343,12 @@ agreement for further details.
 		(type "PARAMETER_SIGNED_DEC")	)
 	(parameter
 		"c_top_border"
-		"9"
+		"8"
 		""
 		(type "PARAMETER_SIGNED_DEC")	)
 	(parameter
 		"c_left_border"
-		"110"
+		"32"
 		""
 		(type "PARAMETER_SIGNED_DEC")	)
 	(drawing
