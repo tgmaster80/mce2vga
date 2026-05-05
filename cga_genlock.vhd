@@ -40,6 +40,8 @@ end cga_genlock;
 
 architecture behavioral of cga_genlock is
 
+constant c_debug_disable_cga : std_logic := '1';
+
 constant black					: unsigned(3 downto 0) := "0000";
 constant white					: unsigned(3 downto 0) := "1111";
 constant lcyan					: unsigned(3 downto 0) := "0111";
@@ -77,10 +79,15 @@ signal s_phase				: unsigned(1 downto 0);
 
 begin
 
+	wren <= '0' when c_debug_disable_cga = '1' else 'Z';
+	wr_req <= '0' when c_debug_disable_cga = '1' else 'Z';
+	pixel <= (others => '0') when c_debug_disable_cga = '1' else (others => 'Z');
+	composite <= '0' when c_debug_disable_cga = '1' else s_composite;
+
 	process(clk, enable, samples, left_border, top_border)
 	begin
 		if (rising_edge(clk)) then	
-			if (enable = '1') then
+			if (enable = '1' and c_debug_disable_cga = '0') then
 				s_col_begin <= to_integer(left_border);
 				s_col_end <= to_integer(left_border) + 800;
 				s_row_begin <= to_integer(top_border);
@@ -96,7 +103,7 @@ begin
 	begin
 		if (rising_edge(clk)) then			
 			s_trg_reset <= '0';
-			if (enable = '1') then			
+			if (enable = '1' and c_debug_disable_cga = '0') then			
 				if (reset /= latch) then				
 					if (peak > 0) then
 						peak := peak - 1;
@@ -122,7 +129,7 @@ begin
 	process(clk, s_trg_reset, enable)
 	begin
 	if (rising_edge(clk)) then
-		if (enable = '1') then
+		if (enable = '1' and c_debug_disable_cga = '0') then
 			if (s_trg_reset = '1') then
 				s_composite <= not s_composite;
 			end if;
@@ -134,7 +141,7 @@ begin
 	process(clk, hblank, enable)
 	begin		
 		if (rising_edge(clk)) then
-			if (enable = '1') then		
+			if (enable = '1' and c_debug_disable_cga = '0') then		
 				if (hblank = '1') then
 					max_col <= col_number;
 					if (col_number >= 759) then
@@ -154,7 +161,7 @@ begin
 	begin
 
 		if (rising_edge(clk)) then
-			if (enable = '1') then		
+			if (enable = '1' and c_debug_disable_cga = '0') then		
 				if (hblank = '1') then
 					vcount <= vcount + 1;
 				elsif (vblank = '1') then
@@ -182,7 +189,7 @@ begin
 	process(clk, hcount, s_col_begin, s_col_end, s_row_begin, s_row_end, enable)
 	begin	
 		if (rising_edge(clk)) then		
-			if (enable = '1') then
+			if (enable = '1' and c_debug_disable_cga = '0') then
 				wren <= '0';		
 				if ((hcount(2 downto 0) = "111") and (hcount(hcount'length-1 downto 3) > s_col_begin and hcount(hcount'length-1 downto 3) < s_col_end) and (vcount > s_row_begin and vcount < s_row_end) ) then
 					wren <= '1'; -- enable row RAM write
@@ -195,7 +202,7 @@ begin
 	process(clk, vcount, hblank, enable)
 	begin		
 		if (rising_edge(clk)) then		
-			if (enable = '1') then
+			if (enable = '1' and c_debug_disable_cga = '0') then
 				if (wr_req = '1') then
 					store_trg <= '0';
 				end if;
@@ -218,7 +225,7 @@ begin
 	process(clk, hcount, hblank, s_col_begin, s_col_end, enable)
 	begin		
 		if (rising_edge(clk)) then		
-			if (enable = '1') then
+			if (enable = '1' and c_debug_disable_cga = '0') then
 				if (hcount(2 downto 0) = "111" and hcount(hcount'length-1 downto 3) > s_col_begin and hcount(hcount'length-1 downto 3) < s_col_end) then
 					col_number <= col_number + 1;
 				end if;
@@ -233,7 +240,7 @@ begin
 	process(clk, hcount, r, g, b, int, enable, s_composite) 
 	begin
 		if (rising_edge(clk)) then	
-			if (enable = '1') then -- and s_composite = '1') then		
+			if (enable = '1' and c_debug_disable_cga = '0') then -- and s_composite = '1') then		
 				if (hcount(2 downto 0) = "111") then			
 					-- rotate the pixel queue
 					s_pixel_queue(15 downto 4) <= s_pixel_queue(11 downto 0);
@@ -246,7 +253,7 @@ begin
 	process(clk, hcount, s_col_begin, enable, s_composite) 
 	begin
 		if (rising_edge(clk)) then	
-			if (enable = '1') then -- and s_composite = '1') then		
+			if (enable = '1' and c_debug_disable_cga = '0') then -- and s_composite = '1') then		
 				s_phase <= to_integer(hcount(4 downto 3)) + to_unsigned(s_col_begin, 11)(1 downto 0);
 			end if;
 		end if;
@@ -256,7 +263,7 @@ begin
 	variable shifted : unsigned(15 downto 0);
 	begin
 		if (rising_edge(clk)) then	
-			if (enable = '1') then -- and s_composite = '1') then		
+			if (enable = '1' and c_debug_disable_cga = '0') then -- and s_composite = '1') then		
 				if (hcount(2 downto 0) = "111") then
 				
 					-- shifts the queue based on current column position
@@ -404,7 +411,7 @@ begin
 	variable rgb : unsigned(5 downto 0);	
 	begin
 		if (rising_edge(clk)) then				
-			if (enable = '1') then		
+			if (enable = '1' and c_debug_disable_cga = '0') then		
 				if (hcount(2 downto 0) = "111") then
 				
 					if (s_composite = '0') then
@@ -422,6 +429,6 @@ begin
 		
 	end process;
 	
-	composite <= s_composite;
+	composite <= s_composite when c_debug_disable_cga = '0' else '0';
 	
 end behavioral;

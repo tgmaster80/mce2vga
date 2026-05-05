@@ -341,7 +341,7 @@ begin
 	process(sram_clk, hcount, rd_ack)
 	begin
 	
-		if (rd_ack = '1') then
+		if (rd_ack = '1' or mono = '0') then
 		
 			rd_req <= '0'; -- request taken 
 			
