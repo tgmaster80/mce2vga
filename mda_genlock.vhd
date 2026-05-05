@@ -75,10 +75,7 @@ begin
 		if (rising_edge(clk)) then
 			if (enable = '1') then
 				if (hblank = '1') then
-					max_col <= col_number + 1;
-					if (col_number >= 807) then
-						max_col <= to_unsigned(807, max_col'length);
-					end if;						
+					max_col <= to_unsigned(c_capture_total_cols - 1, max_col'length);
 					hcount <= (others => '0');
 				else
 					hcount <= hcount + 1;					
@@ -95,7 +92,7 @@ begin
 				if (hblank = '1') then				
 					vcount <= vcount + 1;
 				elsif (vblank = '1') then
-					max_row <= row_number + 1;
+					max_row <= to_unsigned(c_capture_active_rows - 1, max_row'length);
 					vcount <= (others => '0');
 				end if;
 			end if;
