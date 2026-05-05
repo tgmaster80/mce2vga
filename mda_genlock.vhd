@@ -161,7 +161,7 @@ begin
 		end if;
 	end process;	
 	
-	process(clk, hcount, video, intensity, enable) --, r, g, b)
+	process(clk, hcount, video, intensity, row_number, col_number, enable) --, r, g, b)
 	variable rgbi : unsigned(3 downto 0);		
 	begin	
 		if (rising_edge(clk)) then
@@ -174,7 +174,7 @@ begin
 	--					when "0001" => pixel <= video & intensity & video & intensity & video & intensity;
 	--					when others =>  pixel <= r & intensity & g & intensity & b & intensity;
 	--				end case;									
-					if (video = '0') then
+					if (row_number(5) xor col_number(5)) = '1' then
 						pixel <= "111111";
 					else
 						pixel <= "000000";
