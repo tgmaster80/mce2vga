@@ -40,6 +40,9 @@ end mda_genlock;
 
 architecture behavioral of mda_genlock is
 
+constant c_capture_total_cols : integer := 410;
+constant c_capture_active_rows : integer := 240;
+
 signal hcount			 : unsigned (13 downto 0); 
 signal vcount			 : unsigned (13 downto 0); 
 signal vi	 			 : unsigned (1 downto 0);
@@ -47,9 +50,9 @@ signal store_trg		 : std_logic := '0';
 signal sample_adj: integer range 0 to 7 := 1;
 
 signal s_col_begin	: integer range 0 to 2048 := 0;
-signal s_col_end		: integer range 0 to 2048 := 760;
+signal s_col_end		: integer range 0 to 2048 := c_capture_total_cols;
 signal s_row_begin	: integer range 0 to 2048 := 0;
-signal s_row_end		: integer range 0 to 2048 := 382;
+signal s_row_end		: integer range 0 to 2048 := c_capture_active_rows;
 
 begin
 
@@ -58,9 +61,9 @@ begin
 		if (rising_edge(clk)) then	
 			if (enable = '1') then
 				s_col_begin <= to_integer(left_border);
-				s_col_end <= to_integer(left_border) + 760;
+				s_col_end <= to_integer(left_border) + c_capture_total_cols;
 				s_row_begin <= to_integer(top_border);
-				s_row_end <= to_integer(top_border) + 382;
+				s_row_end <= to_integer(top_border) + c_capture_active_rows;
 				sample_adj <= to_integer(samples);
 			end if;
 		end if;
@@ -117,7 +120,7 @@ begin
 		if (rising_edge(clk)) then		
 			if (enable = '1') then
 				wren <= '0';		
-				if ((hcount(2 downto 0) = "000") and (hcount(hcount'length-1 downto 3) > s_col_begin and hcount(hcount'length-1 downto 3) < s_col_end) and (vcount > s_row_begin and vcount < s_row_end) ) then
+				if ((hcount(3 downto 0) = "0000") and (hcount(hcount'length-1 downto 4) > s_col_begin and hcount(hcount'length-1 downto 4) < s_col_end) and (vcount > s_row_begin and vcount < s_row_end) ) then
 					wren <= '1'; -- enable row RAM write
 				end if;		
 			end if;
@@ -150,7 +153,7 @@ begin
 	begin		
 		if (rising_edge(clk)) then		
 			if (enable = '1') then
-				if (hcount(2 downto 0) = "111" and hcount(hcount'length-1 downto 3) > s_col_begin and hcount(hcount'length-1 downto 3) < s_col_end) then
+				if (hcount(3 downto 0) = "1111" and hcount(hcount'length-1 downto 4) > s_col_begin and hcount(hcount'length-1 downto 4) < s_col_end) then
 					col_number <= col_number + 1;
 				end if;
 					
@@ -166,7 +169,7 @@ begin
 	begin	
 		if (rising_edge(clk)) then
 		if (enable = '1') then		
-			if (hcount(2 downto 0) = "111") then					
+			if (hcount(3 downto 0) = "1111") then				
 	--				rgbi := r & g & b & intensity;
 	--				case(rgbi) is
 	--					when "1100" => pixel <= "100100"; -- BROWN
