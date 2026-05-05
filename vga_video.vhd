@@ -250,7 +250,7 @@ begin
 	process(clk, enable, vcount)
 	begin
 				
-			if (enable = '0') then
+			if (enable = '0' or mono = '0') then
 				-- disable
 				vsync_out <= 'Z';			
 			elsif(rising_edge(clk)) then
@@ -268,7 +268,7 @@ begin
 	process (clk, enable, hcount)
 	begin
 		
-			if (enable = '0') then
+			if (enable = '0' or mono = '0') then
 				-- disable
 				hsync_out <= 'Z';
 				
@@ -380,6 +380,11 @@ begin
 				r_out <= (others => 'Z');
 				g_out <= (others => 'Z');
 				b_out <= (others => 'Z');			
+			
+			elsif (mono = '0') then
+				r_out <= (others => 'Z');
+				g_out <= (others => 'Z');
+				b_out <= (others => 'Z');
 				
 			elsif (rising_edge(clk)) then
 			
