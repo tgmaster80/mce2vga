@@ -40,8 +40,10 @@ end mda_genlock;
 
 architecture behavioral of mda_genlock is
 
+constant c_capture_total_cols : integer := 410;
 constant c_capture_active_cols : integer := 320;
 constant c_capture_active_rows : integer := 240;
+constant c_default_line_ticks : integer := 7500;
 
 signal hcount			 : unsigned (13 downto 0); 
 signal vcount			 : unsigned (13 downto 0); 
@@ -53,6 +55,9 @@ signal s_col_begin	: integer range 0 to 2048 := 0;
 signal s_col_end		: integer range 0 to 2048 := c_capture_active_cols;
 signal s_row_begin	: integer range 0 to 2048 := 0;
 signal s_row_end		: integer range 0 to 2048 := c_capture_active_rows;
+signal line_ticks		: integer range 1 to 16383 := c_default_line_ticks;
+signal sample_accum	: integer range 0 to 32767 := 0;
+signal sample_col		: integer range 0 to 2048 := 0;
 
 begin
 
@@ -99,6 +104,17 @@ begin
 		end if;
 	end process;
 
+	process(clk, hblank, enable)
+	begin
+		if (rising_edge(clk)) then
+			if (enable = '1') then
+				if (hblank = '1' and hcount > 0) then
+					line_ticks <= to_integer(hcount);
+				end if;
+			end if;
+		end if;
+	end process;
+
 	-- sram sync
 	process(sram_clk, hcount, hblank, wr_ack)
 	begin
@@ -111,15 +127,42 @@ begin
 		end if;
 	end process;
 
-	-- col / row adjustment
-	process(clk, hcount, s_col_begin, s_col_end, s_row_begin, s_row_end, enable)
+	-- resample the measured source line to a fixed 320-pixel active raster
+	process(clk, enable, hblank, video, s_col_begin, s_col_end, s_row_begin, s_row_end)
+	variable next_accum : integer range 0 to 32767;
+	variable sample_now : std_logic;
 	begin	
 		if (rising_edge(clk)) then		
 			if (enable = '1') then
-				wren <= '0';		
-				if ((hcount(3 downto 0) = "0000") and (hcount(hcount'length-1 downto 4) > s_col_begin and hcount(hcount'length-1 downto 4) < s_col_end) and (vcount > s_row_begin and vcount < s_row_end) ) then
-					wren <= '1'; -- enable row RAM write
-				end if;		
+				wren <= '0';
+				sample_now := '0';
+
+				if (hblank = '1') then
+					sample_accum <= 0;
+					sample_col <= 0;
+					col_number <= (others => '0');
+				elsif (sample_col < c_capture_total_cols) then
+					next_accum := sample_accum + c_capture_total_cols;
+					if (next_accum >= line_ticks) then
+						sample_accum <= next_accum - line_ticks;
+						sample_col <= sample_col + 1;
+						sample_now := '1';
+					else
+						sample_accum <= next_accum;
+					end if;
+				end if;
+
+				if (sample_now = '1') then
+					if (sample_col > s_col_begin and sample_col < s_col_end and vcount > s_row_begin and vcount < s_row_end) then
+						wren <= '1';
+						col_number <= col_number + 1;
+						if (video = '0') then
+							pixel <= "111111";
+						else
+							pixel <= "000000";
+						end if;
+					end if;
+				end if;
 			end if;
 		end if;
 	end process;
@@ -146,42 +189,4 @@ begin
 		end if;
 	end process;
 	
-	process(clk, hcount, hblank, s_col_begin, s_col_end, enable)
-	begin		
-		if (rising_edge(clk)) then		
-			if (enable = '1') then
-				if (hcount(3 downto 0) = "1111" and hcount(hcount'length-1 downto 4) > s_col_begin and hcount(hcount'length-1 downto 4) < s_col_end) then
-					col_number <= col_number + 1;
-				end if;
-					
-				if (hblank = '1') then
-					col_number <= (others => '0');
-				end if;				
-			end if;
-		end if;
-	end process;	
-	
-	process(clk, hcount, video, intensity, enable) --, r, g, b)
-	variable rgbi : unsigned(3 downto 0);		
-	begin	
-		if (rising_edge(clk)) then
-		if (enable = '1') then		
-			if (hcount(3 downto 0) = "1111") then				
-	--				rgbi := r & g & b & intensity;
-	--				case(rgbi) is
-	--					when "1100" => pixel <= "100100"; -- BROWN
-	--					when "0000" => pixel <= video & intensity & video & intensity & video & intensity;
-	--					when "0001" => pixel <= video & intensity & video & intensity & video & intensity;
-	--					when others =>  pixel <= r & intensity & g & intensity & b & intensity;
-	--				end case;									
-					if (video = '0') then
-						pixel <= "111111";
-					else
-						pixel <= "000000";
-					end if;
-				end if;
-			end if;
-		end if;
-	end process;	
-
 end behavioral;
