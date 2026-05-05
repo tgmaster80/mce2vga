@@ -5279,12 +5279,12 @@ agreement for further details.
 		(type "PARAMETER_ENUM")	)
 	(parameter
 		"hsync_ticks"
-		"38"
+		"20000"
 		""
 		(type "PARAMETER_SIGNED_DEC")	)
 	(parameter
 		"vsync_ticks"
-		"7400"
+		"20000"
 		""
 		(type "PARAMETER_SIGNED_DEC")	)
 	(parameter
