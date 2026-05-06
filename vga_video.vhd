@@ -328,7 +328,11 @@ begin
 						
 							when 1 | 3 =>
 								if (vcount(0) = '1') then
-									row_number <= row_number + 1;
+									if (scale_mode = 3 and row_number(3 downto 0) = "1111") then
+										row_number <= row_number + 2;
+									else
+										row_number <= row_number + 1;
+									end if;
 									row_mask <= not scanline;
 								end if;
 							
