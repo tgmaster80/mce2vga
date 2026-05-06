@@ -320,7 +320,7 @@ begin
 										
 					if (vcount = (vert_active_video + vert_front_porch + vert_sync_pulse)) then
 						
-						row_number <= to_unsigned(8, col_number'length);
+						row_number <= (others => '0');
 						
 					elsif (vcount < vert_active_video) then
 					
