@@ -140,6 +140,7 @@ signal hblank, vblank							: std_logic;
 signal merge_rows									: std_logic;
 signal blank										: std_logic;
 signal row_mask									: std_logic;
+signal col_skip_count                          : integer range 0 to 10 := 0;
 --signal start_row									: unsigned(9 downto 0);
 --signal start_col									: unsigned(9 downto 0);
 
@@ -291,12 +292,19 @@ begin
 				if (hcount = (hor_active_video + hor_front_porch + hor_sync_pulse)) then
 				
 					col_number <= to_unsigned(8, col_number'length);
+					col_skip_count <= 0;
 					
 				elsif (hcount < hor_active_video) then
 					case scale_mode is
 						when 3 =>
 							if (hcount(0) = '1') then
-								col_number <= col_number + 1;
+								if (col_skip_count = 10) then
+									col_number <= col_number + 2;
+									col_skip_count <= 0;
+								else
+									col_number <= col_number + 1;
+									col_skip_count <= col_skip_count + 1;
+								end if;
 							end if;
 						when others =>
 							col_number <= col_number + 1;
