@@ -44,6 +44,8 @@ constant c_capture_total_cols : integer := 410;
 constant c_capture_active_cols : integer := 320;
 constant c_capture_active_rows : integer := 240;
 constant c_default_line_ticks : integer := 7500;
+constant c_vga_col_guard : integer := 14;
+constant c_vga_row_guard : integer := 8;
 
 signal hcount			 : unsigned (13 downto 0); 
 signal vcount			 : unsigned (13 downto 0); 
@@ -80,7 +82,7 @@ begin
 		if (rising_edge(clk)) then
 			if (enable = '1') then
 				if (hblank = '1') then
-					max_col <= to_unsigned(c_capture_active_cols - 1, max_col'length);
+					max_col <= to_unsigned(c_capture_active_cols + c_vga_col_guard, max_col'length);
 					hcount <= (others => '0');
 				else
 					hcount <= hcount + 1;					
@@ -97,7 +99,7 @@ begin
 				if (hblank = '1') then				
 					vcount <= vcount + 1;
 				elsif (vblank = '1') then
-					max_row <= to_unsigned(c_capture_active_rows - 1, max_row'length);
+					max_row <= to_unsigned(c_capture_active_rows + c_vga_row_guard, max_row'length);
 					vcount <= (others => '0');
 				end if;
 			end if;
