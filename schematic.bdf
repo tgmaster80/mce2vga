@@ -3481,7 +3481,7 @@ agreement for further details.
 		(type "PARAMETER_SIGNED_DEC")	)
 	(parameter
 		"c_top_border"
-		"9"
+		"0"
 		""
 		(type "PARAMETER_SIGNED_DEC")	)
 	(parameter

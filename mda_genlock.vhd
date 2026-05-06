@@ -155,7 +155,7 @@ begin
 				end if;
 
 				if (sample_now = '1') then
-					if (sample_col > s_col_begin and sample_col < s_col_end and vcount > s_row_begin and vcount < s_row_end) then
+					if (sample_col >= s_col_begin and sample_col < s_col_end and vcount >= s_row_begin and vcount < s_row_end) then
 						wren <= '1';
 						col_number <= col_number + 1;
 						if (video = '0') then
@@ -178,7 +178,7 @@ begin
 				end if;
 				
 				if (hblank = '1') then			
-					if (vcount > s_row_begin and vcount < s_row_end) then
+					if (vcount >= s_row_begin and vcount < s_row_end) then
 						row_number <= row_number + 1;		
 						store_trg <= '1';
 					end if;				
