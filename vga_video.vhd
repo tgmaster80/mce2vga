@@ -301,7 +301,7 @@ begin
 					case scale_mode is
 						when 3 =>
 							if (col_repeat_phase = '0') then
-								next_compact_accum := col_compact_accum + 70;
+								next_compact_accum := col_compact_accum + 74;
 								if (next_compact_accum >= 320) then
 									col_number <= col_number + 1;
 									col_compact_accum <= next_compact_accum - 320;
@@ -515,7 +515,7 @@ begin
 	begin
 		if (rising_edge(clk)) then
 			videoh <= '0';
-			if (hcount < hor_active_video and col_number < (max_col - 2)) then
+			if (hcount < hor_active_video and col_number < (max_col - 6)) then
 				videoh <= '1';
 			end if;
 		end if;
