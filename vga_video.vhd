@@ -140,7 +140,7 @@ signal hblank, vblank							: std_logic;
 signal merge_rows									: std_logic;
 signal blank										: std_logic;
 signal row_mask									: std_logic;
-signal col_expand_count                        : integer range 0 to 4 := 0;
+signal col_compact_accum                       : integer range 0 to 319 := 0;
 signal col_repeat_phase                        : std_logic := '0';
 --signal start_row									: unsigned(9 downto 0);
 --signal start_col									: unsigned(9 downto 0);
@@ -288,26 +288,30 @@ begin
 		
 	-- colum pixel to read from row RAM
 	process (clk, hcount)
+	variable next_compact_accum : integer range 0 to 389;
 	begin
 			if (rising_edge(clk)) then
 				if (hcount = (hor_active_video + hor_front_porch + hor_sync_pulse)) then
 				
 					col_number <= to_unsigned(8, col_number'length);
-					col_expand_count <= 0;
+					col_compact_accum <= 0;
 					col_repeat_phase <= '0';
 					
 				elsif (hcount < hor_active_video) then
 					case scale_mode is
 						when 3 =>
-							if (col_expand_count = 4) then
-								col_number <= col_number + 1;
-								col_expand_count <= 0;
-								col_repeat_phase <= '0';
-							elsif (col_repeat_phase = '0') then
-								col_repeat_phase <= '1';
+							if (col_repeat_phase = '0') then
+								next_compact_accum := col_compact_accum + 70;
+								if (next_compact_accum >= 320) then
+									col_number <= col_number + 1;
+									col_compact_accum <= next_compact_accum - 320;
+									col_repeat_phase <= '0';
+								else
+									col_compact_accum <= next_compact_accum;
+									col_repeat_phase <= '1';
+								end if;
 							else
 								col_number <= col_number + 1;
-								col_expand_count <= col_expand_count + 1;
 								col_repeat_phase <= '0';
 							end if;
 						when others =>
