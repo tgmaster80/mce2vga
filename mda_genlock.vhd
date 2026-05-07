@@ -42,6 +42,7 @@ architecture behavioral of mda_genlock is
 
 constant c_capture_total_cols : integer := 410;
 constant c_capture_active_cols : integer := 320;
+constant c_capture_source_cols : integer := 324;
 constant c_capture_active_rows : integer := 256;
 constant c_default_line_ticks : integer := 7500;
 constant c_vga_col_guard : integer := 14;
@@ -60,6 +61,7 @@ signal s_row_end		: integer range 0 to 2048 := c_capture_active_rows;
 signal line_ticks		: integer range 1 to 16383 := c_default_line_ticks;
 signal sample_accum	: integer range 0 to 32767 := 0;
 signal sample_col		: integer range 0 to 2048 := 0;
+signal col_skip_accum : integer range 0 to 319 := 0;
 
 begin
 
@@ -68,7 +70,7 @@ begin
 		if (rising_edge(clk)) then	
 			if (enable = '1') then
 				s_col_begin <= to_integer(left_border);
-				s_col_end <= to_integer(left_border) + c_capture_active_cols;
+				s_col_end <= to_integer(left_border) + c_capture_source_cols;
 				s_row_begin <= to_integer(top_border);
 				s_row_end <= to_integer(top_border) + c_capture_active_rows;
 				sample_adj <= to_integer(samples);
@@ -132,6 +134,7 @@ begin
 	-- resample the measured source line to a fixed 320-pixel active raster
 	process(clk, enable, hblank, video, s_col_begin, s_col_end, s_row_begin, s_row_end)
 	variable next_accum : integer range 0 to 32767;
+	variable next_skip_accum : integer range 0 to 323;
 	variable sample_now : std_logic;
 	begin	
 		if (rising_edge(clk)) then		
@@ -142,6 +145,7 @@ begin
 				if (hblank = '1') then
 					sample_accum <= 0;
 					sample_col <= 0;
+					col_skip_accum <= 0;
 					col_number <= (others => '0');
 				elsif (sample_col < c_capture_total_cols) then
 					next_accum := sample_accum + c_capture_total_cols;
@@ -156,12 +160,18 @@ begin
 
 				if (sample_now = '1') then
 					if (sample_col >= s_col_begin and sample_col < s_col_end and vcount >= s_row_begin and vcount < s_row_end) then
-						wren <= '1';
-						col_number <= col_number + 1;
-						if (video = '0') then
-							pixel <= "111111";
+						next_skip_accum := col_skip_accum + (c_capture_source_cols - c_capture_active_cols);
+						if (next_skip_accum >= c_capture_active_cols) then
+							col_skip_accum <= next_skip_accum - c_capture_active_cols;
 						else
-							pixel <= "000000";
+							col_skip_accum <= next_skip_accum;
+							wren <= '1';
+							col_number <= col_number + 1;
+							if (video = '0') then
+								pixel <= "111111";
+							else
+								pixel <= "000000";
+							end if;
 						end if;
 					end if;
 				end if;

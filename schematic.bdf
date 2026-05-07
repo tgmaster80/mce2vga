@@ -3348,7 +3348,7 @@ agreement for further details.
 		(type "PARAMETER_SIGNED_DEC")	)
 	(parameter
 		"c_left_border"
-		"60"
+		"64"
 		""
 		(type "PARAMETER_SIGNED_DEC")	)
 	(drawing
