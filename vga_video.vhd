@@ -140,7 +140,7 @@ signal hblank, vblank							: std_logic;
 signal merge_rows									: std_logic;
 signal blank										: std_logic;
 signal row_mask									: std_logic;
-signal col_skip_count                          : integer range 0 to 10 := 0;
+signal col_skip_count                          : integer range 0 to 9 := 0;
 --signal start_row									: unsigned(9 downto 0);
 --signal start_col									: unsigned(9 downto 0);
 
@@ -298,7 +298,7 @@ begin
 					case scale_mode is
 						when 3 =>
 							if (hcount(0) = '1') then
-								if (col_skip_count = 10) then
+								if (col_skip_count = 9) then
 									col_number <= col_number + 2;
 									col_skip_count <= 0;
 								else
