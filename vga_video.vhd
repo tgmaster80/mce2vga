@@ -515,7 +515,7 @@ begin
 	begin
 		if (rising_edge(clk)) then
 			videoh <= '0';
-			if (hcount < hor_active_video and col_number < (max_col - 6)) then
+			if (hcount < hor_active_video and col_number < (max_col - 2)) then
 				videoh <= '1';
 			end if;
 		end if;
