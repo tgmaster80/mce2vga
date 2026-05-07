@@ -44,7 +44,7 @@ constant c_capture_total_cols : integer := 410;
 constant c_capture_active_cols : integer := 320;
 constant c_capture_active_rows : integer := 256;
 constant c_default_line_ticks : integer := 7500;
-constant c_vga_col_guard : integer := 14;
+constant c_vga_col_guard : integer := 18;
 constant c_vga_row_guard : integer := 8;
 
 signal hcount			 : unsigned (13 downto 0); 
