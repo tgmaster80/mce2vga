@@ -5653,7 +5653,7 @@ agreement for further details.
 	)
 	(parameter
 		"c_phase"
-		"5"
+		"4"
 		""
 		(type "PARAMETER_SIGNED_DEC")	)
 	(parameter
@@ -5663,12 +5663,12 @@ agreement for further details.
 		(type "PARAMETER_SIGNED_DEC")	)
 	(parameter
 		"c_top_border"
-		"9"
+		"59"
 		""
 		(type "PARAMETER_SIGNED_DEC")	)
 	(parameter
 		"c_left_border"
-		"112"
+		"142"
 		""
 		(type "PARAMETER_SIGNED_DEC")	)
 	(drawing

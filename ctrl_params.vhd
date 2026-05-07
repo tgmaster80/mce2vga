@@ -5,7 +5,7 @@ use IEEE.NUMERIC_STD.ALL;
 entity ctrl_params is
 
 	generic(
-		constant c_phase			: integer := 1;	
+		constant c_phase			: integer := 4;	
 		constant c_samples		: integer := 2;
 		constant c_top_border	: integer := 28;
 		constant c_left_border	: integer := 146
