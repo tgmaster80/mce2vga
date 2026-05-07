@@ -140,7 +140,8 @@ signal hblank, vblank							: std_logic;
 signal merge_rows									: std_logic;
 signal blank										: std_logic;
 signal row_mask									: std_logic;
-signal col_skip_count                          : integer range 0 to 9 := 0;
+signal col_expand_count                        : integer range 0 to 4 := 0;
+signal col_repeat_phase                        : std_logic := '0';
 --signal start_row									: unsigned(9 downto 0);
 --signal start_col									: unsigned(9 downto 0);
 
@@ -292,19 +293,22 @@ begin
 				if (hcount = (hor_active_video + hor_front_porch + hor_sync_pulse)) then
 				
 					col_number <= to_unsigned(8, col_number'length);
-					col_skip_count <= 0;
+					col_expand_count <= 0;
+					col_repeat_phase <= '0';
 					
 				elsif (hcount < hor_active_video) then
 					case scale_mode is
 						when 3 =>
-							if (hcount(0) = '1') then
-								if (col_skip_count = 9) then
-									col_number <= col_number + 2;
-									col_skip_count <= 0;
-								else
-									col_number <= col_number + 1;
-									col_skip_count <= col_skip_count + 1;
-								end if;
+							if (col_expand_count = 4) then
+								col_number <= col_number + 1;
+								col_expand_count <= 0;
+								col_repeat_phase <= '0';
+							elsif (col_repeat_phase = '0') then
+								col_repeat_phase <= '1';
+							else
+								col_number <= col_number + 1;
+								col_expand_count <= col_expand_count + 1;
+								col_repeat_phase <= '0';
 							end if;
 						when others =>
 							col_number <= col_number + 1;
