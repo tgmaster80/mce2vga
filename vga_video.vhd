@@ -301,7 +301,7 @@ begin
 					case scale_mode is
 						when 3 =>
 							if (col_repeat_phase = '0') then
-								next_compact_accum := col_compact_accum + 70;
+								next_compact_accum := col_compact_accum + 64;
 								if (next_compact_accum >= 320) then
 									col_number <= col_number + 1;
 									col_compact_accum <= next_compact_accum - 320;
